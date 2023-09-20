@@ -19,12 +19,30 @@ public class UserController : Controller
     [HttpPost("signup")]
     public IActionResult Post([FromBody] User user)
     {
-       throw new NotImplementedException();
+       var newUser = _repository.Post(user);
+
+       if (newUser == null) {
+        return BadRequest(new { message = "E-mail already used" });
+       }
+
+       string tokenGenereted = new TokenManager().Generate(newUser);
+       AuthDTOResponse token = new AuthDTOResponse { Token = tokenGenereted };
+
+       return Created("", token);
     }
 
     [HttpPost("login")]
     public IActionResult Login([FromBody] AuthDTORequest login)
     {
-        throw new NotImplementedException();
+        var userLogin = _repository.Login(login);
+
+        if (userLogin == null) {
+            return BadRequest(new { message = "uthentication failed" });
+        }
+
+        string tokenGenereted = new TokenManager().Generate(userLogin);
+        AuthDTOResponse token = new AuthDTOResponse { Token = tokenGenereted };
+
+        return Ok(token);
     }
 }

@@ -20,7 +20,18 @@ namespace TryBets.Users.Services
 
         public string Generate(User user)
         {
-            throw new NotImplementedException();
+            JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+            SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor() {
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Secret!)),
+                    SecurityAlgorithms.HmacSha256Signature
+                ),
+                Expires = DateTime.Now.AddDays(_tokenOptions.ExpiresDay)
+            };
+
+            SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
         }
     }
 }

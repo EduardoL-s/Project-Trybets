@@ -26,7 +26,19 @@ public class BetController : Controller
     [Authorize(Policy = "Client")]
     public async Task<IActionResult> Post([FromBody] BetDTORequest request)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var token = HttpContext.User.Identity as ClaimsIdentity;
+            var email = token?.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email)?.Value;
+
+            _oddService.UpdateOdd(request.MatchId, request.TeamId, request.BetValue);
+
+            return Created("", _repository.Post(request, email!));
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(new { message = exception.Message });
+        }
     }
 
     [HttpGet("{BetId}")]
@@ -34,6 +46,16 @@ public class BetController : Controller
     [Authorize(Policy = "Client")]
     public IActionResult Get(int BetId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var token = HttpContext.User.Identity as ClaimsIdentity;
+            var email = token?.Claims.FirstOrDefault(e => e.Type == ClaimTypes.Email)?.Value;
+
+            return Ok(_repository.Get(BetId, email!));
+        }
+        catch (Exception exception)
+        {  
+            return BadRequest(new { message = exception.Message });
+        }
     }
 }

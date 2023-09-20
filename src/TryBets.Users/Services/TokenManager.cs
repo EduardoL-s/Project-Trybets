@@ -20,8 +20,12 @@ namespace TryBets.Users.Services
 
         public string Generate(User user)
         {
+            var claim = new ClaimsIdentity();
+            claim.AddClaim(new Claim(ClaimTypes.Email, user.Email!));
+    
             JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor() {
+                Subject = claim,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_tokenOptions.Secret!)),
                     SecurityAlgorithms.HmacSha256Signature
